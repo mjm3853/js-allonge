@@ -1,4 +1,5 @@
 // !!! RECIPES !!!
+// Search `Recipe =` to go to each one
 
 // Recipe = PARTIAL APPLICATION
 // - takes a function with multiple params and returns a function with fewer params
@@ -140,3 +141,45 @@ let espresso2Example2 = tap2('espresso', (it) => {
 });
 
 console.log(espresso2Example2);
+
+// Recipe = MAYBE
+// - Do nothing if a parameter is nothing
+// - Nothing could be null or undefined
+
+const isSomething = (value) =>
+    value !== null && value !== void 0;
+
+const checksForSomething = (value) => {
+    if (isSomething(value)) {
+        // function logic
+    }
+};
+
+/**
+ * Maybe is a decorator that does nothing when a parameter is nothing
+ * Nothing is defined as null or undefined
+ * @param {*} fn 
+ */
+const maybe = (fn) =>
+    function (...args) {
+        if (args.length === 0) {
+            return
+        } else {
+            for (let arg of args) {
+                if (arg == null) return;
+            }
+        }
+        return fn.apply(this, args)
+    };
+
+const maybe1 = maybe((a, b, c) => a + b + c)(1, 2, 3);
+
+console.log(maybe1);
+
+const maybe2 = maybe((a, b, c) => a + b + c)(1, null, 3);
+
+console.log(maybe2);
+
+const withoutMaybe = ((a, b, c) => a + b + c)(1, null, 3);
+
+console.log(withoutMaybe);
