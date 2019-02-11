@@ -202,7 +202,7 @@ const plus = function (a, b) {
 
 console.log(plus(4, 8));
 
-const letSee = function() {
+const letSee = function () {
     return arguments.length;
 }
 

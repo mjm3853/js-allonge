@@ -183,3 +183,27 @@ console.log(maybe2);
 const withoutMaybe = ((a, b, c) => a + b + c)(1, null, 3);
 
 console.log(withoutMaybe);
+
+//---
+
+// Recipe = ONCE
+
+const once = (fn) => {
+    let done = false;
+
+    return function () {
+        return done ? void 0 : ((done = true), fn.apply(this, arguments))
+    }
+};
+
+const askedOnABlindDate = once(
+    () => "sure, why not?"
+);
+
+//---
+
+const repeater = (num, fn) =>
+    (num > 0) ? (repeater(num - 1, fn), fn(num)) :
+    undefined;
+
+repeater(5, () => console.log(askedOnABlindDate()));
