@@ -207,3 +207,103 @@ const repeater = (num, fn) =>
     undefined;
 
 repeater(5, () => console.log(askedOnABlindDate()));
+
+//---
+// Recipe = Left-Variadic Functions
+// - Accepts variable number of parameters
+// - Useful for certain destructuring algorithms
+
+// Right-variadic comes out of the box with ...param
+const abccc = (a, b, ...c) => {
+    console.log(a);
+    console.log(b);
+    console.log(c);
+}
+
+abccc(1, 2, 3, 4, 5)
+
+function team(coach, captain, ...players) {
+    console.log(`${captain} (captain)`);
+    for (let player of players) {
+        console.log(player);
+    }
+    console.log(`squad coached by ${coach}`);
+}
+
+team('Luis Enrique', 'Xavi Hernández', 'Marc-André ter Stegen',
+    'Martín Montoya', 'Gerard Piqué');
+
+// Note - JS only lets you gather params from end of the param list
+
+/**
+ * leftVariadic is a decorator that turns any function into a function
+ * that gathers parameters from the left instead of from the right
+ * @param {*} fn 
+ */
+const leftVariadic = (fn) => {
+    if (fn.length < 1) {
+        return fn
+    } else {
+        return function (...args) {
+            const gathered = args.slice(0, args.length - fn.length + 1),
+                spread = args.slice(args.length - fn.length + 1);
+
+            return fn.apply(this, [gathered].concat(spread));
+        }
+    }
+}
+
+const butLastAndLast = leftVariadic((butLast, last) => [butLast, last]);
+
+console.log(butLastAndLast('why', 'hello', 'there', 'little', 'droid'));
+
+const leftGather = (outputArrayLength) => {
+    return function (inputArray) {
+        return [inputArray.slice(0, inputArray.length - outputArrayLength + 1)].concat(
+            inputArray.slice(inputArray.length - outputArrayLength + 1)
+        )
+    }
+};
+
+const [butLast, last] = leftGather(2)(['why', 'hello', 'there', 'little', 'droid'])
+
+console.log([butLast, last]);
+
+// Recipe = COMPOSE and PIPELINE
+
+const compose = (a, b) => (c) => (a(b(c)));
+
+const compose3 = (a, b, c) => (d) => a(b(c(d)));
+
+// or
+
+const compose3Again = (a, b, c) => compose(a(compose(b, c)));
+
+// Implement variadic compose recursively
+
+/**
+ * superCompose composes a series of functions together, creating a new one
+ * @param {*} a 
+ * @param  {...any} rest 
+ */
+const superCompose = (a, ...rest) =>
+    rest.length === 0 ?
+    a :
+    (c) => a(compose(...rest)(c))
+
+// compose is helpful when defining a new function that combines the effects of existing functions
+
+// Pipeline is similar to compose, but more explicit about order of operations
+
+/**
+ * Pipeline applies operations in order on a given value
+ * @param  {...any} fns 
+ */
+const pipeline = (...fns) =>
+    (value) =>
+    fns.reduce((acc, fn) => fn(acc), value);
+
+const addOne = (value) => value + 1;
+const doubleIt = (value) => value * 2;
+
+console.log(pipeline(addOne, doubleIt)(2));
