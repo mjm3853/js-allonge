@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Recursion is the root of computation since it trades description for time.
 // —Alan Perlis
 
@@ -62,7 +63,6 @@ console.log(...rest);
 const lengthOfArray = ([first, ...rest]) =>
     first === undefined ?
     0 :
-    // @ts-ignore
     1 + lengthOfArray(rest);
 
 console.log(lengthOfArray([1, 2, 3]))
@@ -96,10 +96,8 @@ const flatten = ([first, ...rest]) => {
     if (first === undefined) {
         return [];
     } else if (!Array.isArray(first)) {
-        // @ts-ignore
         return [first, ...flatten(rest)];
     } else {
-        // @ts-ignore
         return [...flatten(first), ...flatten(rest)]
     }
 }
@@ -107,3 +105,81 @@ const flatten = ([first, ...rest]) => {
 console.log(flatten(['foo', [1, 2, 'bar'],
     ['3', 5]
 ]));
+
+// map - apply a function to all elements of an array
+// terminal cases:
+// - do nothing with empty array
+// - apply function to first element
+// - continue to next element
+
+const mapWith = (fn, [first, ...rest]) =>
+    first === undefined ? [] : [fn(first), ...mapWith(fn, rest)];
+
+const makeSquare = (x) => x * x;
+const makeNonNumberNull = (x) => isNaN(x) ? null : x;
+
+const compose = (a, b) => (c) => a(b(c));
+
+console.log(mapWith(compose(makeNonNumberNull, makeSquare), [1, 2, 4, 'a']));
+
+// folding - generalization of mapping
+
+const foldWith = (fn, terminalValue, [first, ...rest]) =>
+    first === undefined ?
+    terminalValue :
+    fn(first, foldWith(fn, terminalValue, rest));
+
+
+const squareAll = (array) => foldWith((first, rest) => [first * first, ...rest], [], array);
+
+console.log(squareAll([1, 3, 7]));
+
+// tail-call optimization
+// - 'tail-call' occurs when a functions last act is to invoke another function
+// -- and then return whatever the other function returns
+// - allows JS to throw away current stack frame once arguments are figured
+// - when 'non-tail-call' optimized, the function must keep track of all the steps/data to complete the function
+
+// from stack overflow
+
+// - without optimization
+/* 
+
+(fact 3)
+(* 3 (fact 2))
+(* 3 (* 2 (fact 1)))
+(* 3 (* 2 (* 1 (fact 0))))
+(* 3 (* 2 (* 1 1)))
+(* 3 (* 2 1))
+(* 3 2)
+6 
+
+*/
+
+const length = ([first, ...rest]) =>
+    first === undefined ?
+    0 :
+    // hanging calculation
+    1 + length(rest);
+
+// - with optimization
+/*
+
+(fact 3)
+(fact-tail 3 1)
+(fact-tail 2 3)
+(fact-tail 1 6)
+(fact-tail 0 6)
+6 
+
+*/
+
+const lengthOptimized = ([first, ...rest], numberToBeAdded) =>
+    first === undefined ?
+    0 + numberToBeAdded :
+    // calculation within parameter
+    lengthOptimized(rest, 1 + numberToBeAdded);
+
+
+console.log(length([1, 2, 3]));
+console.log(lengthOptimized([1, 2, 4], 0));

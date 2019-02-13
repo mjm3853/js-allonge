@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Functions represent computations to be performed
 
 // Using Node REPL
