@@ -156,11 +156,11 @@ console.log(squareAll([1, 3, 7]));
 
 */
 
-const length = ([first, ...rest]) =>
+const lengthNotOptimized = ([first, ...rest]) =>
     first === undefined ?
     0 :
     // hanging calculation
-    1 + length(rest);
+    1 + lengthNotOptimized(rest);
 
 // - with optimization
 /*
@@ -176,10 +176,65 @@ const length = ([first, ...rest]) =>
 
 const lengthOptimized = ([first, ...rest], numberToBeAdded) =>
     first === undefined ?
-    0 + numberToBeAdded :
-    // calculation within parameter
+    numberToBeAdded :
+    // calculation within parameter before recursive function is called
     lengthOptimized(rest, 1 + numberToBeAdded);
 
 
-console.log(length([1, 2, 3]));
+console.log(lengthNotOptimized([1, 2, 3]));
 console.log(lengthOptimized([1, 2, 4], 0));
+
+// Can use partial application to abstract away numberToBeAdded
+
+const callLast = (fn, ...args) =>
+    (...remainingArgs) =>
+    fn(...remainingArgs, ...args);
+
+const length = callLast(lengthOptimized, 0);
+
+console.log(length([1, 3, 4, 5, 6, 7]));
+
+const mapWithOptimized = (fn, [first, ...rest], prepend) =>
+    first === undefined ?
+    prepend :
+    mapWithOptimized(fn, rest, [...prepend, fn(first)]);
+
+const mapWithPartial = callLast(mapWithOptimized, []);
+
+console.log(mapWithPartial((x) => x * x, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+    30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+    80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+    90, 91, 92, 93, 94, 95, 96, 97, 98, 99
+]));
+
+// factorials
+
+const factorialOptimized = (n, work) =>
+    n === 1 ?
+    work :
+    factorialOptimized(n - 1, n * work);
+
+const factorial = callLast(factorialOptimized, 1);
+
+console.log(factorial(5));
+
+// default arguments
+
+const factorialDefault = (n, work = 1) =>
+    n === 1 ?
+    work :
+    factorialDefault(n - 1, n * work);
+
+console.log(factorialDefault(6));
+
+// default destructuring arguments
+
+const [firstTwo, secondTwo = "two"] = ["primus", "secundus"];
+
+console.log(`${firstTwo} . ${secondTwo}`);
