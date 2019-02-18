@@ -263,8 +263,38 @@ console.log(car(oneToFive));
 console.log(cdr(oneToFive));
 
 // [first, ...rest] emulates semantics of car, cdr, but not the implementation
+// - Lisp and others had lists operating in hardware
 // - JS arrays are slower than making everything a linked list for some things
 // - Linked list is perfect for first, ...rest
 // - Arrays better for iterating over, changing values, and fetching if array is indexed
 
 // Onto even better ways of doing things
+
+// PLAIN OLD JAVASCRIPT OBJECTS
+
+const SecretDecoderRing = {
+    encode(plaintext) {
+        return plaintext
+            .split('')
+            .map(char => char.charCodeAt())
+            .map(code => code + 1)
+            .map(code => String.fromCharCode(code))
+            .join('')
+    },
+    decode(cyphertext) {
+        return cyphertext
+            .split('')
+            .map(char => char.charCodeAt())
+            .map(code => code - 1)
+            .map(code => String.fromCharCode(code))
+            .join('');
+    }
+}
+
+const stringToEncode = 'Encode me';
+const encoded = SecretDecoderRing.encode(stringToEncode);
+const decoded = SecretDecoderRing.decode(encoded);
+
+console.log(encoded);
+console.log(decoded);
+
