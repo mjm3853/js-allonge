@@ -238,3 +238,33 @@ console.log(factorialDefault(6));
 const [firstTwo, secondTwo = "two"] = ["primus", "secundus"];
 
 console.log(`${firstTwo} . ${secondTwo}`);
+
+// LISP cons cells
+
+const cons = (a, d) => [a, d];
+const car = ([a, d]) => a;
+const cdr = ([a, d]) => d;
+
+const oneToFive = cons(1, (cons(2, cons(3, cons(4, cons(5, null))))));
+
+console.log(oneToFive);
+
+// actually a linked list
+
+const node5 = [5, null],
+    node4 = [4, node5],
+    node3 = [3, node4],
+    node2 = [2, node3],
+    node1 = [1, node2];
+
+console.log(node1);
+
+console.log(car(oneToFive));
+console.log(cdr(oneToFive));
+
+// [first, ...rest] emulates semantics of car, cdr, but not the implementation
+// - JS arrays are slower than making everything a linked list for some things
+// - Linked list is perfect for first, ...rest
+// - Arrays better for iterating over, changing values, and fetching if array is indexed
+
+// Onto even better ways of doing things
