@@ -298,3 +298,40 @@ const decoded = SecretDecoderRing.decode(encoded);
 console.log(encoded);
 console.log(decoded);
 
+const EMPTY = {};
+
+const OneTwoThree = {
+    first: 1,
+    rest: {
+        first: 2,
+        rest: {
+            first: 3,
+            rest: EMPTY
+        }
+    }
+};
+
+const reverse = (node, delayed = EMPTY) =>
+    node === EMPTY ?
+    delayed :
+    reverse(node.rest, {
+        first: node.first,
+        rest: delayed
+    });
+
+console.log(reverse(OneTwoThree));
+
+const reverseMapWith = (fn, node, delayed = EMPTY) =>
+    node === EMPTY ?
+    delayed :
+    reverseMapWith(fn, node.rest, {
+        first: fn(node.first),
+        rest: delayed
+    });
+
+console.log(reverseMapWith((x) => x * x, OneTwoThree));
+
+// MUTATION 
+// - identity stays the same, but structure changes
+// - makes some things shorter and maybe faster, but harder to reason about
+
