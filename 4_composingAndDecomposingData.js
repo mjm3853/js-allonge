@@ -335,3 +335,106 @@ console.log(reverseMapWith((x) => x * x, OneTwoThree));
 // - identity stays the same, but structure changes
 // - makes some things shorter and maybe faster, but harder to reason about
 
+// REASSIGNMENT
+
+const evenStevens = (n) => {
+    if (n === 0) {
+        return true;
+    } else if (n == 1) {
+        return false;
+    } else {
+        // rebind a new value to the name n
+        n = n - 2;
+        return evenStevens(n);
+    }
+}
+
+console.log(evenStevens(68));
+
+// why CONST and LET
+// - block scoped instead of function scoped
+
+// COPY ON WRITE
+
+const UTIL_EMPTY = {};
+
+const utilCopy = (node, head = null, tail = null) => {
+    if (node === UTIL_EMPTY) {
+        return head;
+    } else if (tail === null) {
+        const {
+            first,
+            rest
+        } = node;
+        const newNode = {
+            first,
+            rest
+        };
+        return utilCopy(rest, newNode, newNode);
+    } else {
+        const {
+            first,
+            rest
+        } = node;
+        const newNode = {
+            first,
+            rest
+        };
+        tail.rest = newNode;
+        return utilCopy(node.rest, head, newNode);
+    }
+}
+
+const utilFirst = ({
+    first,
+    rest
+}) => first;
+const utilRest = ({
+    first,
+    rest
+}) => rest;
+
+const utilReverse = (node, delayed = UTIL_EMPTY) =>
+    node === UTIL_EMPTY ?
+    delayed :
+    utilReverse(utilRest(node), {
+        first: utilFirst(node),
+        rest: delayed
+    });
+
+const utilMapWith = (fn, node, delayed = UTIL_EMPTY) =>
+    node === UTIL_EMPTY ?
+    utilReverse(delayed) :
+    utilMapWith(fn, utilRest(node), {
+        utilFirst: fn(utilFirst(node)),
+        rest: delayed
+    });
+
+const utilAt = (index, list) =>
+    index === 0 ?
+    utilFirst(list) :
+    utilAt(index - 1, utilRest(list));
+
+const utilSet = (index, value, list, originalList = list) =>
+    index === 0 ?
+    (list.first = value, originalList) :
+    utilSet(index - 1, value, utilRest(list), originalList);
+
+const parentList = {
+    first: 1,
+    rest: {
+        first: 2,
+        rest: {
+            first: 3,
+            rest: UTIL_EMPTY
+        }
+    }
+}
+
+const childList = utilRest(parentList);
+
+utilSet(2, "three", parentList);
+utilSet(0, "two", childList);
+
+console.log(parentList);
+console.log(childList);
